@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>HCI2001 PROTOTYPE</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/notif.css">
+</head>
+
+<body>
+    
+    <main class="container-fluid">
+        <div class="row text-center">
+            <div class="col-12">
+                <h1>SIMON SAYS</h1>
+            </div>
+            <div class="col-12 table-responsive">
+                <button id="start" class="mb-2 btn btn-success">GAME START</button>
+                <div id="gameContainer"></div>
+            </div>
+        </div>
+    </main>
+    
+     <!-- Admin button and footer information -->
+    <button id="adminButton">ADMIN</button>
+    <button id="notifButton">NOTIF</button>
+    <div id="adminContent"></div>
+    <div id="footerInfo"></div>
+
+    <!-- NOTIF PLACEMENT -->
+    <div id="notificationContainer" class="notification"></div>
+  
+    <!-- <div id="notification-box" class="notification-box">
+        <div class="notification-header">EMERGENCY: TYPHOON</div>
+        <div class="notification-content">MARKETING TODAASDASHDSAD <br> hello </div>
+        <button id="accept-btn" class="accept-btn">Accept</button>
+        <button id="dismiss-btn" class="dismiss-btn">Dismiss</button>
+    </div> -->
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="js/d3.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/notif.js"></script>
+
+    <script>
+        function initializeGame() {
+            startGame();
+            startNotificationSystem();
+        }
+
+        document.addEventListener("DOMContentLoaded", initializeGame);
+        document.getElementById("adminButton").addEventListener("click", updateAdminPage);
+
+    </script>
+
+</body>
+</html>
