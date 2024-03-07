@@ -1,0 +1,41 @@
+
+.button {
+    cursor: pointer;
+}
+
+body {
+    padding-bottom: 70px;
+    padding-top: 70px;
+}
+
+.notification-box {
+   position: fixed;
+   top: 20px; /* Adjust the top value as needed */
+   right: 20px; /* Adjust the right value as needed */
+   background-color: #fff;
+   border: 1px solid #ccc;
+   padding: 20px;
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+}
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+.purple {
+    color: purple;
+}
+
+.yellow {
+    color: yellow;
+}
+.orange {
+    color: orange;
+}
+.blue {
+    color: blue;
+}
