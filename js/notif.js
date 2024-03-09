@@ -1,9 +1,10 @@
 let notificationTimeout //when notif will expire
 let currentCombo; //current notif being displayed (color/category)
-let notificationDisplayTime; //when notif was displayed
+let notificationDisplayTime; //when notif was display
+let notificationBehaviour; //notif behaviour (timeout behaviour/allows stacking)
 
-//Notif Variables
-const colors = ["Red", "Orange", "Yellow", "Blue", "Green", "Purple"];
+//Notif Variables (REMOVED: Orange, Yellow, Purple)
+const colors = ["Red", "Green", "Blue" ];
 const categories = ["Emergency", "Work", "Social"];
 
 const notificationCombinations = []; //to be printed for "notif log"
@@ -12,14 +13,14 @@ function sleep(ms) {
    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// all possible notif combinations (TOTAL = 18)
+// all possible notif combinations 
 for (const color of colors) {
     for (const category of categories) {
         notificationCombinations.push({ color, category, status: "NAN", interactionTime: -1.0 });
     }
 }
 
-// Possible Header/Content for each notif category
+//Possible Header/Content for each notif category
 //TODO: Add more pairs (5 each?)
 const notificationPairs = {
     "emergency": [
@@ -73,7 +74,26 @@ function selectNotificationCombo() {
 }
 
 
-//display function
+function setNotificationBehaviour(value, behaviour) {
+    notificationBehaviour = value;
+    document.getElementById("chosenBehaviour").textContent = behaviour;
+    document.getElementById("behaviourModal").style.display = "none";
+}
+
+//notif behaviour modal
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("behaviourModal").style.display = "block";
+
+    document.getElementById("urgentButton").addEventListener("click", function() {
+        setNotificationBehaviour(0, "Urgent");
+    });
+
+    document.getElementById("nonUrgentButton").addEventListener("click", function() {
+        setNotificationBehaviour(1, "Non-Urgent");
+    });
+});
+
+//display notifs
 function displayNotification(combo) {
    currentCombo = combo
    console.log("displayNotification called");
@@ -82,8 +102,6 @@ function displayNotification(combo) {
    //get header/body pair based on category
    const pair = getRandomNotificationPair(combo.category.toLowerCase());
    const notificationContainer = document.getElementById('notificationContainer');
-
-   //clear
    notificationContainer.innerHTML = '';
 
    //notif chunk
