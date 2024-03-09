@@ -1,5 +1,6 @@
 let notificationTimeout //when notif will expire
 let currentCombo; //current notif being displayed (color/category)
+let notificationDisplayTime; //when notif was displayed
 
 //Notif Variables
 const colors = ["Red", "Orange", "Yellow", "Blue", "Green", "Purple"];
@@ -14,7 +15,7 @@ function sleep(ms) {
 // all possible notif combinations (TOTAL = 18)
 for (const color of colors) {
     for (const category of categories) {
-        notificationCombinations.push({ color, category, status: "NAN" });
+        notificationCombinations.push({ color, category, status: "NAN", interactionTime: -1.0 });
     }
 }
 
@@ -99,6 +100,9 @@ function displayNotification(combo) {
    notificationContainer.appendChild(notification);
    notificationContainer.style.display = "block";
 
+   //NEW: Get time when notification is displayed 
+    notificationDisplayTime = Date.now();
+
    //10s timeout
    notificationTimeout = setTimeout(() => {
       hideNotification();
@@ -114,6 +118,7 @@ function hideNotification() {
    notificationContainer.style.display = "none";
 }
 
+//Update Combo Status
 function updateComboStatus(combo, status) {
    const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
 
@@ -123,10 +128,26 @@ function updateComboStatus(combo, status) {
    }
 }
 
+//NEW: Update Notif Combo interactionTime
+function updateComboTime(combo, interactionTime) {
+    const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
+
+    if (comboIndex !== -1) {
+        notificationCombinations[comboIndex].interactionTime = interactionTime;
+        console.log(`Combo ${comboIndex} interaction time updated: ${JSON.stringify(notificationCombinations[comboIndex])}`);
+    }
+
+}
+
 //NOTIF BTNS
 $(document).on("click", ".accept-btn", function() {
    clearTimeout(notificationTimeout);
    hideNotification();
+
+   //NEW: calculate interaction time 
+   const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
+   updateComboTime(currentCombo, interactionTime);
+
    updateComboStatus(currentCombo, "accepted"); // Use currentCombo instead of combo
    console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
 });
@@ -134,6 +155,11 @@ $(document).on("click", ".accept-btn", function() {
 $(document).on("click", ".dismiss-btn", function() {
    clearTimeout(notificationTimeout);
    hideNotification();
+
+    //NEW: calculate interaction time 
+    const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
+    updateComboTime(currentCombo, interactionTime);
+
    updateComboStatus(currentCombo, "dismissed"); // Use currentCombo instead of combo
    console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
 });
@@ -162,22 +188,54 @@ function recordInteractionStatus(combo, status) {
     updateAdminPage();
 }
 
-function updateAdminPage() {
-    const adminContent = document.getElementById("adminContent");
-    adminContent.innerHTML = "<h2>Admin Page</h2>";
+//OLD: shows data via html
+// function updateAdminPage() {
+//     const adminContent = document.getElementById("adminContent");
+//     adminContent.innerHTML = "<h2>Admin Page</h2>";
 
-    // Display the status of each notification combination
-    for (const combo of notificationCombinations) {
-        const comboStatus = combo.status === "NAN" ? "Not interacted" : combo.status;
-        const comboElement = document.createElement("p");
-        comboElement.textContent = `${combo.color} - ${combo.category}: ${comboStatus}`;
-        adminContent.appendChild(comboElement);
-    }
-}
+//     // Display the status of each notification combination
+//     for (const combo of notificationCombinations) {
+//         const comboStatus = combo.status === "NAN" ? "Not interacted" : combo.status;
+//         const comboElement = document.createElement("p");
+//         comboElement.textContent = `${combo.color} - ${combo.category}: ${comboStatus}`;
+//         //print interaction time 
+//         comboElement.textContent += ` - Interaction Time: ${combo.interactionTime}`;
+//         adminContent.appendChild(comboElement);
+//     }
+// }
+
 $("#adminButton").click(() => {
-    console.log(`Current notification combinations: ${JSON.stringify(notificationCombinations)}`);
+    exportResults();
 });
 
+//NEW: export results (contents of notificationCombinations array)
+//https://www.geeksforgeeks.org/converting-javascript-arrays-csvs-vice-versa/
+function exportResults() {
+    //convert array data -> csv
+    function arrayToCsv(objArray) {
+        const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+        let csvString = `${Object.keys(array[0]).map(value => `"${value}"`).join(",")}\r\n`;
+
+        return array.reduce((csvString, next) => {
+            csvString += `${Object.values(next).map(value => `"${value}"`).join(",")}\r\n`;
+            return csvString;
+        }, csvString);
+    }
+
+    function downloadCsv() {
+        const csvStr = arrayToCsv(notificationCombinations);
+        const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "interaction-results.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    downloadCsv();
+}
 
 function clearNotificationTimeout() {
     clearTimeout(notificationTimeout);
