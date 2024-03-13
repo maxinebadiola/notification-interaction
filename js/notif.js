@@ -300,6 +300,8 @@ function startNotificationSystem() {
    startButton.addEventListener("click", () => {
        if (!initialValuesSet) {
            // Set initial values only if they haven't been set before
+
+           
            scoreQueue = generateRandomSequence();
           
            scoreToSpawn = scoreQueue.shift();
