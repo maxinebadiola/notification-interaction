@@ -2,6 +2,7 @@ let notificationTimeout //when notif will expire
 let currentCombo; //current notif being displayed (color/category)
 let notificationDisplayTime; //when notif was display
 let notificationBehaviour; //notif behaviour (timeout behaviour/allows stacking)
+let scoreQueue = [];
 
 //Notif Variables (REMOVED: Orange, Yellow, Purple)
 const colors = ["Red", "Green", "Blue" ];
@@ -52,6 +53,32 @@ function notificationScoreSpawn() {
 
 }
 
+function generateRandomSequence() {
+  let numList = []
+  // number ranges
+  const min = 2;
+  const max = 4;
+  let adderNum; // ranges between 3-6
+  let startingRandNum = 0;
+
+  for (let i = 0; i < 18-1; i++) {
+    // generating a random number between 3-6
+    adderNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    startingRandNum += adderNum;
+    //adding to that difference
+    numList.push(startingRandNum);
+  }
+  console.log(numList);
+  return numList;
+}
+
+// prepares to create a new notification
+function spawningNewNotification() {
+  let scoreToSpawn = scoreQueue.shift();
+  let comboToSpawn = selectNotificationCombo();
+  console.log(scoreQueue)
+  updateFooterInfo(scoreToSpawn, comboToSpawn);
+}
 //extract score from SVG
 const getCurrentScore = () => {
    const scoreTextElement = document.getElementById("scoreText");
@@ -126,6 +153,9 @@ function displayNotification(combo) {
       hideNotification();
       updateComboStatus(combo, "ignored");
    }, 10000);
+
+   // update footer and prepare the next new notification
+   spawningNewNotification();
 }
 
 
@@ -270,7 +300,9 @@ function startNotificationSystem() {
    startButton.addEventListener("click", () => {
        if (!initialValuesSet) {
            // Set initial values only if they haven't been set before
-           scoreToSpawn = notificationScoreSpawn();
+           scoreQueue = generateRandomSequence();
+          
+           scoreToSpawn = scoreQueue.shift();
            comboToSpawn = selectNotificationCombo();
            updateFooterInfo(scoreToSpawn, comboToSpawn);
            initialValuesSet = true;
