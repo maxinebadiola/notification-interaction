@@ -3,6 +3,8 @@ let currentCombo; //current notif being displayed (color/category)
 let notificationDisplayTime; //when notif was display
 let notificationBehaviour; //notif behaviour (timeout behaviour/allows stacking)
 let scoreQueue = [];
+let tempScore = 0;
+let scoreCounter = 0;
 
 //Notif Variables (REMOVED: Orange, Yellow, Purple)
 const colors = ["Red", "Green", "Blue" ];
@@ -311,6 +313,17 @@ function startNotificationSystem() {
        }
    });
 
+}
+
+function getScore(newScore)
+{
+    if(newScore != 0)
+    {
+        tempScore = newScore;
+        scoreCounter++;
+        document.getElementById("scoreHolder").textContent = scoreCounter;
+    }
+    
 }
 
 //SPAWN NOTIF TEST

@@ -208,6 +208,7 @@ const startGame = () => {
     const updateScoreDisplay = score => {
         scoreText.text(score.toString());
         currentScore = score;
+        getScore(score);
     };
     
     const resetGame = () => {
