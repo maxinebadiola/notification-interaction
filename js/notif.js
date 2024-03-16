@@ -315,6 +315,7 @@ function startNotificationSystem() {
 
 }
 
+//Get the overall score from the game. This should go to the CSV file
 function getScore(newScore)
 {
     if(newScore != 0)

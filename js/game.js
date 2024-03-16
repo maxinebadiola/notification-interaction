@@ -232,37 +232,42 @@ const startGame = () => {
             }
             canPlay = false;
             const isCorrect = compareUserSequenceWithOriginal(sequence, button, counter);
-            if (isCorrect) {
-                await toggleButton(button, userMilliseconds);
-                if (counter >= sequence.length - 1) {
-                    score++;
-                    updateScoreDisplay(score);
-
-                    //ADDED: check if score = score to spawn notif
-                    if (score === extractScoreFromFooter()) {
-                        const comboToSpawn = selectNotificationCombo();
-                        displayNotification(comboToSpawn);
-                    }
-                    
-                    //ADDED: check if user has reached max score
-                    if (score === maxScore) {
-                        alert(`Congratulations! You reached the max score of ${maxScore}.`);
-                        resetGame();
-                        updateAdminPage(); //update notif logs
-                        enableStartButton(); //reenable start btn
+            //ADDED March 17 - End the game when all notifications spawned.
+            const comboToSpawn = selectNotificationCombo();
+            if(comboToSpawn)
+            {
+                if (isCorrect) {
+                    await toggleButton(button, userMilliseconds);
+                    if (counter >= sequence.length - 1) {
+                        score++;
+                        updateScoreDisplay(score);
+    
+                        //ADDED: check if score = score to spawn notif
+                        if (score === extractScoreFromFooter()) {
+                            //const comboToSpawn = selectNotificationCombo();
+                            displayNotification(comboToSpawn);
+                        }
+                        
+                        //ADDED: check if user has reached max score
+                        if (score === maxScore) {
+                            alert(`Congratulations! You reached the max score of ${maxScore}.`);
+                            resetGame();
+                            //updateAdminPage(); //update notif logs
+                            enableStartButton(); //reenable start btn
+                        } else {
+                            await sleep(500);
+                            await cpuTurn();
+                        }
                     } else {
-                        await sleep(500);
-                        await cpuTurn();
+                        counter++;
                     }
+                    canPlay = true;
                 } else {
-                    counter++;
+                    alert(`You Lost! Your score was ${score}. \nTry again?`);
+                    resetGame(); //reset game
+                    enableStartButton(); //reenable start btn
                 }
-                canPlay = true;
-            } else {
-                alert(`You Lost! Your score was ${score}. \nTry again?`);
-                resetGame(); //reset game
-                enableStartButton(); //reenable start btn
-            }
+            } 
         });
     });
 
