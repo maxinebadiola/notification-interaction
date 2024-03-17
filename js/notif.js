@@ -96,6 +96,11 @@ const getCurrentScore = () => {
 function selectNotificationCombo() {
    //selected notif must be unencountered (no status logged)
    const unencounteredCombinations = notificationCombinations.filter(combo => combo.status === "NAN");
+   if (unencounteredCombinations.length === 0) {
+    exportResults();
+    alert("Trial is complete, your results are downloaded. Please refresh the page to start the trial again.")
+    return; 
+   }
    const randomIndex = Math.floor(Math.random() * unencounteredCombinations.length);
    const selectedCombo = unencounteredCombinations[randomIndex];
    return { color: selectedCombo.color, category: selectedCombo.category };
@@ -278,7 +283,12 @@ function exportResults() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", "interaction-results.csv");
+        if (notificationBehaviour === 0) {
+          link.setAttribute("download", "urgent-results.csv");
+        }
+        else if (notificationBehaviour === 1) {
+          link.setAttribute("download", "nonurgent-results.csv");
+        }
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
