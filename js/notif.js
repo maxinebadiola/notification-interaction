@@ -121,32 +121,60 @@ function displayNotification(combo) {
    console.log(`Displaying notification - combo: ${JSON.stringify(combo)}`);
 
    //get header/body pair based on category
-   const pair = getRandomNotificationPair(combo.category.toLowerCase());
-   const notificationContainer = document.getElementById('notificationContainer');
-   notificationContainer.innerHTML = '';
+   if (notificationBehaviour == 0) {
+    const pair = getRandomNotificationPair(combo.category.toLowerCase());
+    const notificationContainer = document.getElementById('notificationContainer');
+    notificationContainer.innerHTML = '';
 
-   //notif chunk
-   const notification = document.createElement("div");
-   notification.className = "notification-box";
-   notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
-   notification.innerHTML = `
-       <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
-       <div class="notification-content" style="color: white;">${pair.body}</div>
-       <button class="accept-btn">Accept</button>
-       <button class="dismiss-btn">Dismiss</button>
-   `;
+    //notif chunk
+    const notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+    notification.innerHTML = `
+        <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
+        <div class="notification-content" style="color: white;">${pair.body}</div>
+        <button class="accept-btn">Accept</button>
+        <button class="dismiss-btn">Dismiss</button>
+    `;
 
-   notificationContainer.appendChild(notification);
-   notificationContainer.style.display = "block";
+    notificationContainer.appendChild(notification);
+    notificationContainer.style.display = "block";
 
-   //NEW: Get time when notification is displayed 
+    //NEW: Get time when notification is displayed 
+      notificationDisplayTime = Date.now();
+
+    //10s timeout
+    notificationTimeout = setTimeout(() => {
+        hideNotification();
+        updateComboStatus(combo, "ignored");
+    }, 10000);
+   }
+   else if (notificationBehaviour == 1) {
+    const pair = getRandomNotificationPair(combo.category.toLowerCase());
+    const notificationContainer = document.getElementById('notificationContainer');
+
+    //notif chunk
+    const notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+    notification.innerHTML = `
+        <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
+        <div class="notification-content" style="color: white;">${pair.body}</div>
+        <button class="accept-btn">Accept</button>
+        <button class="dismiss-btn">Dismiss</button>
+    `;
+
+    notificationContainer.prepend(notification);
+    notificationContainer.style.display = "block";
+
+    //NEW: Get time when notification is displayed 
     notificationDisplayTime = Date.now();
 
-   //10s timeout
-   notificationTimeout = setTimeout(() => {
-      hideNotification();
-      updateComboStatus(combo, "ignored");
-   }, 10000);
+    //10s timeout
+    notificationTimeout = setTimeout(() => {
+        updateComboStatus(combo, "ignored");
+    }, 10000);
+   }
 
    // update footer and prepare the next new notification
    spawningNewNotification();
@@ -156,8 +184,15 @@ function displayNotification(combo) {
 
 //hide notif
 function hideNotification() {
-   const notificationContainer = document.getElementById("notificationContainer");
-   notificationContainer.style.display = "none";
+  const notificationContainer = document.getElementById("notificationContainer");
+  notificationContainer.style.display = "none";
+}
+
+function clickedNotification() {
+  const notificationContainer = document.getElementById("notificationContainer");
+  console.log("clickedNotification");
+  console.log(notificationContainer.firstElementChild.innerHTML);
+  notificationContainer.firstElementChild.remove();
 }
 
 //Update Combo Status
@@ -184,7 +219,8 @@ function updateComboTime(combo, interactionTime) {
 //NOTIF BTNS
 $(document).on("click", ".accept-btn", function() {
    clearTimeout(notificationTimeout);
-   hideNotification();
+  //  hideNotification();
+  clickedNotification();
 
    //NEW: calculate interaction time 
    const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
@@ -196,7 +232,8 @@ $(document).on("click", ".accept-btn", function() {
 
 $(document).on("click", ".dismiss-btn", function() {
    clearTimeout(notificationTimeout);
-   hideNotification();
+  //  hideNotification();
+  clickedNotification();
 
     //NEW: calculate interaction time 
     const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
