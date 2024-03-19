@@ -269,6 +269,7 @@ $(document).on("click", ".dismiss-btn", function() {
     updateComboStatus(currentCombo, "dismissed");
     calculateInteractionTime(currentCombo);
     console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
+  });
 
 function getRandomNotificationPair(category) {
    const pairs = notificationPairs[category];
