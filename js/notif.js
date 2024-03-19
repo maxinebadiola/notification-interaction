@@ -23,29 +23,16 @@ for (const color of colors) {
     }
 }
 
-//Possible Header/Content for each notif category
-//TODO: Add more pairs (5 each?)
+//UPDATED: Now STATIC, 1 header/body for each category
 const notificationPairs = {
     "emergency": [
-        {"header": "Typhoon Warning: Seek Shelter", "body": "A typhoon warning has been issued for your area. Please seek shelter immediately."},
-        {"header": "Earthquake Alert: Prepare for Shaking", "body": "Seismic activity has been detected. An earthquake may occur soon."},
-        {"header": "Flood Advisory: High Water Levels", "body": "Due to heavy rainfall, a flood advisory has been issued. Stay away from low-lying areas."},
-        {"header": "Heatwave Alert: Stay Cool and Hydrated", "body": "A heatwave is expected in your area. Stay indoors and keep hydrated."},
-        {"header": "Cold Snap Warning: Bundle Up", "body": "A sudden drop in temperature is expected. Stay warm and check on vulnerable neighbors."}
+        {"header": "Earthquake Alert: Seek Shelter", "body": "NDRRMC: (1:25PM,13Mar24)<br>Isang Magnitude 7.3 na lindol ang naganap kaninang 1:05PM.<br> Aftershocks ay inaasahan."},
     ],    
     "social": [
-        {"header": "New Friend Request from John Doe", "body": "John Doe sent you a friend request. Connect now!"},
-        {"header": "You've Been Tagged in a Photo", "body": "You've been tagged in a new photo by Jane Doe."},
-        {"header": "Your Post Received 100 Likes", "body": "Your post has received 100 likes. Check it out!"},
-        {"header": "Event Reminder: Sarah's Birthday", "body": "Don't forget Sarah's birthday party tomorrow."},
-        {"header": "New Message from Group Chat", "body": "You have a new message in the 'Weekend Plans' group chat."}
+        {"header": "Facebook Messenger", "body": "John Doe sent you a friend request."},
     ],
-    "work": [
-        {"header": "Meeting Reminder: Project Sync at 3PM", "body": "Don't forget the project sync meeting at 3PM."},
-        {"header": "New Email: Weekly Report Due", "body": "The weekly report is due tomorrow. Please submit your updates."},
-        {"header": "Task Assigned: Review Design Mockups", "body": "You've been assigned a new task to review the design mockups."},
-        {"header": "Deadline Alert: Proposal Submission", "body": "The deadline for proposal submission is approaching. Please submit your documents."},
-        {"header": "Calendar Invite: Team Lunch", "body": "You've been invited to a team lunch next Friday."}
+    "work": [ //STUDENT
+        {"header": "Canvas Student", "body": "New Assignment: [Problem Set] Cache Memory Analysis: <br> [1232_CSARCH2_S11]"},
     ]
 };
 
@@ -336,11 +323,12 @@ function getScore(newScore)
     }
     
 }
+//Determine if data collection is finished
 
 //SPAWN NOTIF TEST
 $(document).on("click", "#notifButton", () => {
    // alert("Clicked Notif")
-   const combo1 = { color: "blue", category: "social" }; 
+   const combo1 = { color: "blue", category: "work" }; 
    displayNotification(combo1);
    
 });
