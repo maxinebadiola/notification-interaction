@@ -1,6 +1,5 @@
 let notificationTimeout //when notif will expire
 let currentCombo; //current notif being displayed (color/category)
-let notificationDisplayTime; //when notif was display
 let notificationBehaviour; //notif behaviour (timeout behaviour/allows stacking)
 let scoreQueue = [];
 let tempScore = 0;
@@ -16,10 +15,21 @@ function sleep(ms) {
    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// all possible notif combinations 
+// all possible notif combinations
+// Variable Overview
+//     1. interactionTime 
+//     - (Date.now() - notificationDisplayTime) / 1000;
+//     - calculated and updated via function calculateInteractionTime(combo)
+//     2. notificationDisplayTime 
+//     - timestamp when notif was displayed 
+//     3. isDisplayed
+//     - Boolean, if notif is being displayed 
 for (const color of colors) {
     for (const category of categories) {
-        notificationCombinations.push({ color, category, status: "NAN", interactionTime: -1.0 });
+        notificationCombinations.push
+        ({  color, category, status: "NAN", interactionTime: -1.0, 
+            notificationDisplayTime: -1.0, isDisplayed: false 
+        });
     }
 }
 
@@ -41,7 +51,7 @@ function notificationScoreSpawn() {
    return Math.floor(Math.random() * 4) + 3;
 
 }
-
+//generates random sequence in which notifications will spawn (based on CUMULATIVE session score)
 function generateRandomSequence() {
   let numList = []
   // number ranges
@@ -79,14 +89,15 @@ const getCurrentScore = () => {
    }
 };
 
-//selects notif combo to be displayed next
+//selects notif combo to be displayed next + check if data collection is complete
 function selectNotificationCombo() {
-   //selected notif must be unencountered (no status logged)
-   const unencounteredCombinations = notificationCombinations.filter(combo => combo.status === "NAN");
+   //selected notif must be unencountered (isDisplayed = false)
+   const unencounteredCombinations = notificationCombinations.filter(combo => combo.isDisplayed === false);
+   //if all notifs have been displayed, export results
    if (unencounteredCombinations.length === 0) {
-    exportResults();
-    alert("Trial is complete, your results are downloaded. Please refresh the page to start the trial again.")
-    return; 
+        exportResults();
+        alert("Data collection is complete, your results are being downloaded. Please refresh the page to start the experiment again.")
+        return; 
    }
    const randomIndex = Math.floor(Math.random() * unencounteredCombinations.length);
    const selectedCombo = unencounteredCombinations[randomIndex];
@@ -94,7 +105,7 @@ function selectNotificationCombo() {
    //returns { color: "red", category: "emergency" }; 
 }
 
-
+//select notification behaviour for data collection
 function setNotificationBehaviour(value, behaviour) {
     notificationBehaviour = value;
     document.getElementById("chosenBehaviour").textContent = behaviour;
@@ -139,8 +150,13 @@ function displayNotification(combo) {
    notificationContainer.appendChild(notification);
    notificationContainer.style.display = "block";
 
-   //NEW: Get time when notification is displayed 
-    notificationDisplayTime = Date.now();
+   //UPDATED: Get time when notification is displayed ->  Update notificationDisplayTime
+   const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
+   if (comboIndex !== -1) {
+      notificationCombinations[comboIndex].notificationDisplayTime = Date.now();
+   }
+   //NEW: Set isDisplayed to true
+    notificationCombinations[comboIndex].isDisplayed = true;
 
    //10s timeout
    notificationTimeout = setTimeout(() => {
@@ -170,40 +186,32 @@ function updateComboStatus(combo, status) {
    }
 }
 
-//NEW: Update Notif Combo interactionTime
-function updateComboTime(combo, interactionTime) {
+//NEW: calculates + updates interaction time
+function calculateInteractionTime(combo) {
     const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
-
     if (comboIndex !== -1) {
+        const interactionTime = (Date.now() - notificationCombinations[comboIndex].notificationDisplayTime) / 1000; 
         notificationCombinations[comboIndex].interactionTime = interactionTime;
-        console.log(`Combo ${comboIndex} interaction time updated: ${JSON.stringify(notificationCombinations[comboIndex])}`);
+        console.log(`Combo ${comboIndex} interaction time updated: ${JSON.stringify(notificationCombinations[comboIndex])}`); //console checking 
     }
-
 }
+
 
 //NOTIF BTNS
 $(document).on("click", ".accept-btn", function() {
-   clearTimeout(notificationTimeout);
-   hideNotification();
-
-   //NEW: calculate interaction time 
-   const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
-   updateComboTime(currentCombo, interactionTime);
-
-   updateComboStatus(currentCombo, "accepted"); // Use currentCombo instead of combo
-   console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
+    clearTimeout(notificationTimeout);
+    hideNotification();
+    updateComboStatus(currentCombo, "accepted");
+    calculateInteractionTime(currentCombo);
+    console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
 });
 
 $(document).on("click", ".dismiss-btn", function() {
-   clearTimeout(notificationTimeout);
-   hideNotification();
-
-    //NEW: calculate interaction time 
-    const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
-    updateComboTime(currentCombo, interactionTime);
-
-   updateComboStatus(currentCombo, "dismissed"); // Use currentCombo instead of combo
-   console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
+    clearTimeout(notificationTimeout);
+    hideNotification();
+    updateComboStatus(currentCombo, "dismissed");
+    calculateInteractionTime(currentCombo);
+    console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
 });
 
 function getRandomNotificationPair(category) {
@@ -224,12 +232,6 @@ function getRandomNotificationText(category) {
     return `<strong>${notificationTexts[randomIndex].header}</strong><br>${notificationTexts[randomIndex].body}`;
 }
 
-//record notif interaction -> admin page
-function recordInteractionStatus(combo, status) {
-    combo.status = status;
-    updateAdminPage();
-}
-
 //OLD: shows data via html
 // function updateAdminPage() {
 //     const adminContent = document.getElementById("adminContent");
@@ -246,9 +248,7 @@ function recordInteractionStatus(combo, status) {
 //     }
 // }
 
-$("#adminButton").click(() => {
-    exportResults();
-});
+
 
 //NEW: export results (contents of notificationCombinations array)
 //https://www.geeksforgeeks.org/converting-javascript-arrays-csvs-vice-versa/
@@ -256,12 +256,13 @@ function exportResults() {
     //convert array data -> csv
     function arrayToCsv(objArray) {
         const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
-        let csvString = `${Object.keys(array[0]).map(value => `"${value}"`).join(",")}\r\n`;
+        //EXCLUDE: notificationDisplayTime, notificationInteractionTime, isDisplayed
+        let csvString = 'color,category,status,interactionTime\r\n';
+        array.forEach(item => {
+            csvString += `${item.color},${item.category},${item.status},${item.interactionTime}\r\n`;
+        });
 
-        return array.reduce((csvString, next) => {
-            csvString += `${Object.values(next).map(value => `"${value}"`).join(",")}\r\n`;
-            return csvString;
-        }, csvString);
+        return csvString;
     }
 
     function downloadCsv() {
@@ -323,12 +324,18 @@ function getScore(newScore)
     }
     
 }
-//Determine if data collection is finished
 
-//SPAWN NOTIF TEST
+//TEST FEATURES BELOW
+
+//spawn notif
 $(document).on("click", "#notifButton", () => {
    // alert("Clicked Notif")
    const combo1 = { color: "blue", category: "work" }; 
    displayNotification(combo1);
    
+});
+
+//export results
+$("#adminButton").click(() => {
+    exportResults();
 });
