@@ -188,11 +188,12 @@ function hideNotification() {
   notificationContainer.style.display = "none";
 }
 
-function clickedNotification() {
+function clickedNotification(target) {
   const notificationContainer = document.getElementById("notificationContainer");
   console.log("clickedNotification");
-  console.log(notificationContainer.firstElementChild.innerHTML);
-  notificationContainer.firstElementChild.remove();
+  // console.log(notificationContainer.firstElementChild.innerHTML);
+  // notificationContainer.firstElementChild.remove();
+  target.remove();
 }
 
 //Update Combo Status
@@ -217,10 +218,11 @@ function updateComboTime(combo, interactionTime) {
 }
 
 //NOTIF BTNS
-$(document).on("click", ".accept-btn", function() {
+$(document).on("click", ".accept-btn", function(e) {
    clearTimeout(notificationTimeout);
   //  hideNotification();
-  clickedNotification();
+  let target = e.target.parentElement;
+  clickedNotification(target);
 
    //NEW: calculate interaction time 
    const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
@@ -230,10 +232,11 @@ $(document).on("click", ".accept-btn", function() {
    console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
 });
 
-$(document).on("click", ".dismiss-btn", function() {
+$(document).on("click", ".dismiss-btn", function(e) {
    clearTimeout(notificationTimeout);
   //  hideNotification();
-  clickedNotification();
+  let target = e.target.parentElement;
+  clickedNotification(target);
 
     //NEW: calculate interaction time 
     const interactionTime = (Date.now() - notificationDisplayTime) / 1000; 
