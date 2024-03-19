@@ -2,6 +2,9 @@ let notificationTimeout //when notif will expire
 let currentCombo; //current notif being displayed (color/category)
 let notificationDisplayTime; //when notif was display
 let notificationBehaviour; //notif behaviour (timeout behaviour/allows stacking)
+let scoreQueue = [];
+let tempScore = 0;
+let scoreCounter = 0;
 
 //Notif Variables (REMOVED: Orange, Yellow, Purple)
 const colors = ["Red", "Green", "Blue" ];
@@ -39,6 +42,32 @@ function notificationScoreSpawn() {
 
 }
 
+function generateRandomSequence() {
+  let numList = []
+  // number ranges
+  const min = 2;
+  const max = 4;
+  let adderNum; // ranges between 3-6
+  let startingRandNum = 0;
+
+  for (let i = 0; i < 18-1; i++) {
+    // generating a random number between 3-6
+    adderNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    startingRandNum += adderNum;
+    //adding to that difference
+    numList.push(startingRandNum);
+  }
+  console.log(numList);
+  return numList;
+}
+
+// prepares to create a new notification
+function spawningNewNotification() {
+  let scoreToSpawn = scoreQueue.shift();
+  let comboToSpawn = selectNotificationCombo();
+  console.log(scoreQueue)
+  updateFooterInfo(scoreToSpawn, comboToSpawn);
+}
 //extract score from SVG
 const getCurrentScore = () => {
    const scoreTextElement = document.getElementById("scoreText");
@@ -54,6 +83,11 @@ const getCurrentScore = () => {
 function selectNotificationCombo() {
    //selected notif must be unencountered (no status logged)
    const unencounteredCombinations = notificationCombinations.filter(combo => combo.status === "NAN");
+   if (unencounteredCombinations.length === 0) {
+    exportResults();
+    alert("Trial is complete, your results are downloaded. Please refresh the page to start the trial again.")
+    return; 
+   }
    const randomIndex = Math.floor(Math.random() * unencounteredCombinations.length);
    const selectedCombo = unencounteredCombinations[randomIndex];
    return { color: selectedCombo.color, category: selectedCombo.category };
@@ -113,6 +147,9 @@ function displayNotification(combo) {
       hideNotification();
       updateComboStatus(combo, "ignored");
    }, 10000);
+
+   // update footer and prepare the next new notification
+   spawningNewNotification();
 }
 
 
@@ -233,7 +270,12 @@ function exportResults() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", "interaction-results.csv");
+        if (notificationBehaviour === 0) {
+          link.setAttribute("download", "urgent-results.csv");
+        }
+        else if (notificationBehaviour === 1) {
+          link.setAttribute("download", "nonurgent-results.csv");
+        }
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -257,7 +299,11 @@ function startNotificationSystem() {
    startButton.addEventListener("click", () => {
        if (!initialValuesSet) {
            // Set initial values only if they haven't been set before
-           scoreToSpawn = notificationScoreSpawn();
+
+           
+           scoreQueue = generateRandomSequence();
+          
+           scoreToSpawn = scoreQueue.shift();
            comboToSpawn = selectNotificationCombo();
            updateFooterInfo(scoreToSpawn, comboToSpawn);
            initialValuesSet = true;
@@ -266,8 +312,18 @@ function startNotificationSystem() {
 
 }
 
+//Get the overall score from the game. This should go to the CSV file
+function getScore(newScore)
+{
+    if(newScore != 0)
+    {
+        tempScore = newScore;
+        scoreCounter++;
+        document.getElementById("scoreHolder").textContent = scoreCounter;
+    }
+    
+}
 //Determine if data collection is finished
-
 
 //SPAWN NOTIF TEST
 $(document).on("click", "#notifButton", () => {
