@@ -157,12 +157,59 @@ function displayNotification(combo) {
    }
    //NEW: Set isDisplayed to true
     notificationCombinations[comboIndex].isDisplayed = true;
+  
+   if (notificationBehaviour == 0) {
+    const pair = getRandomNotificationPair(combo.category.toLowerCase());
+    const notificationContainer = document.getElementById('notificationContainer');
+    notificationContainer.innerHTML = '';
 
-   //10s timeout
-   notificationTimeout = setTimeout(() => {
-      hideNotification();
-      updateComboStatus(combo, "ignored");
-   }, 10000);
+    //notif chunk
+    const notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+    notification.innerHTML = `
+        <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
+        <div class="notification-content" style="color: white;">${pair.body}</div>
+        <button class="accept-btn">Accept</button>
+        <button class="dismiss-btn">Dismiss</button>
+    `;
+
+    notificationContainer.appendChild(notification);
+    notificationContainer.style.display = "block";
+
+    //NEW: Get time when notification is displayed 
+      notificationDisplayTime = Date.now();
+
+    //10s timeout
+    notificationTimeout = setTimeout(() => {
+        hideNotification();
+        updateComboStatus(combo, "ignored");
+    }, 10000);
+   }
+   else if (notificationBehaviour == 1) {
+    const pair = getRandomNotificationPair(combo.category.toLowerCase());
+    const notificationContainer = document.getElementById('notificationContainer');
+
+    //notif chunk
+    const notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+    notification.innerHTML = `
+        <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
+        <div class="notification-content" style="color: white;">${pair.body}</div>
+        <button class="accept-btn">Accept</button>
+        <button class="dismiss-btn">Dismiss</button>
+    `;
+
+    notificationContainer.prepend(notification);
+    notificationContainer.style.display = "block";
+
+    //NEW: Get time when notification is displayed 
+    //10s timeout
+    notificationTimeout = setTimeout(() => {
+        updateComboStatus(combo, "ignored");
+    }, 10000);
+   }
 
    // update footer and prepare the next new notification
    spawningNewNotification();
@@ -172,8 +219,16 @@ function displayNotification(combo) {
 
 //hide notif
 function hideNotification() {
-   const notificationContainer = document.getElementById("notificationContainer");
-   notificationContainer.style.display = "none";
+  const notificationContainer = document.getElementById("notificationContainer");
+  notificationContainer.style.display = "none";
+}
+
+function clickedNotification(target) {
+  const notificationContainer = document.getElementById("notificationContainer");
+  console.log("clickedNotification");
+  // console.log(notificationContainer.firstElementChild.innerHTML);
+  // notificationContainer.firstElementChild.remove();
+  target.remove();
 }
 
 //Update Combo Status
@@ -200,7 +255,8 @@ function calculateInteractionTime(combo) {
 //NOTIF BTNS
 $(document).on("click", ".accept-btn", function() {
     clearTimeout(notificationTimeout);
-    hideNotification();
+    let target = e.target.parentElement;
+    clickedNotification(target);
     updateComboStatus(currentCombo, "accepted");
     calculateInteractionTime(currentCombo);
     console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
@@ -208,11 +264,11 @@ $(document).on("click", ".accept-btn", function() {
 
 $(document).on("click", ".dismiss-btn", function() {
     clearTimeout(notificationTimeout);
-    hideNotification();
+    let target = e.target.parentElement;
+    clickedNotification(target);
     updateComboStatus(currentCombo, "dismissed");
     calculateInteractionTime(currentCombo);
     console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
-});
 
 function getRandomNotificationPair(category) {
    const pairs = notificationPairs[category];

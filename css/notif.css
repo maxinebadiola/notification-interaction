@@ -8,10 +8,17 @@ body {
     padding-top: 70px;
 }
 
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  height: 100vh;
+}
+
 .notification-box {
-   position: fixed;
-   top: 20px; /* Adjust the top value as needed */
-   right: 20px; /* Adjust the right value as needed */
+   /* position: fixed; */
+   /* top: 20px; /* Adjust the top value as needed */
+   /* right: 20px; /* Adjust the right value as needed */
    background-color: #fff;
    border: 1px solid #ccc;
    padding: 20px;
