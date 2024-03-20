@@ -107,6 +107,9 @@ function selectNotificationCombo() {
         alert("Data collection is complete, your results are being downloaded. Please refresh the page to start the experiment again.")
         return; 
    }
+   if (unencounteredCombinations.length === 0) {
+    return;
+   }
    const randomIndex = Math.floor(Math.random() * unencounteredCombinations.length);
    const selectedCombo = unencounteredCombinations[randomIndex];
    return { color: selectedCombo.color, category: selectedCombo.category };

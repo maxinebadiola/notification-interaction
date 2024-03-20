@@ -234,8 +234,8 @@ const startGame = () => {
             const isCorrect = compareUserSequenceWithOriginal(sequence, button, counter);
             //ADDED March 17 - End the game when all notifications spawned.
             const comboToSpawn = selectNotificationCombo();
-            if(comboToSpawn)
-            {
+            // if(comboToSpawn)
+            // {
                 if (isCorrect) {
                     await toggleButton(button, userMilliseconds);
                     if (counter >= sequence.length - 1) {
@@ -243,7 +243,7 @@ const startGame = () => {
                         updateScoreDisplay(score);
     
                         //ADDED: check if score = score to spawn notif
-                        if (score === extractScoreFromFooter()) {
+                        if (score === extractScoreFromFooter() && comboToSpawn) {
                             //const comboToSpawn = selectNotificationCombo();
                             displayNotification(comboToSpawn);
                         }
@@ -267,7 +267,7 @@ const startGame = () => {
                     resetGame(); //reset game
                     enableStartButton(); //reenable start btn
                 }
-            } 
+            // } 
         });
     });
 
