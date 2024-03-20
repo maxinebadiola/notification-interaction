@@ -98,9 +98,11 @@ const getCurrentScore = () => {
 function selectNotificationCombo() {
    //selected notif must be unencountered (isDisplayed = false)
    const unencounteredCombinations = notificationCombinations.filter(combo => combo.isDisplayed === false);
-   console.log("selectedNotifications ", unencounteredCombinations.length);
+   const uninteractedCombinations = notificationCombinations.filter(combo => combo.status === "NAN");
+   console.log("unencounteredCombinations ", unencounteredCombinations.length);
+   console.log("uninteractedCombinations ", uninteractedCombinations.length);
    //if all notifs have been displayed, export results
-   if (unencounteredCombinations.length === 0) {
+   if (unencounteredCombinations.length === 0 && uninteractedCombinations.length === 0) {
         exportResults();
         alert("Data collection is complete, your results are being downloaded. Please refresh the page to start the experiment again.")
         return; 
@@ -137,13 +139,6 @@ function displayNotification(combo) {
    console.log("displayNotification called");
    console.log(`Displaying notification - combo: ${JSON.stringify(combo)}`);
 
-   //UPDATED: Get time when notification is displayed ->  Update notificationDisplayTime
-   const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
-   if (comboIndex !== -1) {
-      notificationCombinations[comboIndex].notificationDisplayTime = Date.now();
-   }
-   //NEW: Set isDisplayed to true
-    notificationCombinations[comboIndex].isDisplayed = true;
   
    if (notificationBehaviour == 0) {
     const pair = getRandomNotificationPair(combo.category.toLowerCase());
@@ -205,6 +200,14 @@ function displayNotification(combo) {
         updateComboStatus(combo, "ignored");
     }, 10000);
    }
+   
+   //UPDATED: Get time when notification is displayed ->  Update notificationDisplayTime
+   const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
+   if (comboIndex !== -1) {
+      notificationCombinations[comboIndex].notificationDisplayTime = Date.now();
+   }
+   //NEW: Set isDisplayed to true
+    notificationCombinations[comboIndex].isDisplayed = true;
 
    // update footer and prepare the next new notification
    spawningNewNotification();
