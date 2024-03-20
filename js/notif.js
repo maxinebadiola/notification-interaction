@@ -46,6 +46,11 @@ const notificationPairs = {
     ]
 };
 
+// TODO: gets current combo of the function
+function getCurrCombo(target) {
+  console.log({ color: target.dataset.color, category: target.dataset.category });
+  return { color: target.dataset.color, category: target.dataset.category };
+}
 //random number between 3-6 (score at which notif will spawn)
 function notificationScoreSpawn() {
    return Math.floor(Math.random() * 4) + 3;
@@ -93,6 +98,7 @@ const getCurrentScore = () => {
 function selectNotificationCombo() {
    //selected notif must be unencountered (isDisplayed = false)
    const unencounteredCombinations = notificationCombinations.filter(combo => combo.isDisplayed === false);
+   console.log("selectedNotifications ", unencounteredCombinations.length);
    //if all notifs have been displayed, export results
    if (unencounteredCombinations.length === 0) {
         exportResults();
@@ -131,25 +137,6 @@ function displayNotification(combo) {
    console.log("displayNotification called");
    console.log(`Displaying notification - combo: ${JSON.stringify(combo)}`);
 
-   //get header/body pair based on category
-   const pair = getRandomNotificationPair(combo.category.toLowerCase());
-   const notificationContainer = document.getElementById('notificationContainer');
-   notificationContainer.innerHTML = '';
-
-   //notif chunk
-   const notification = document.createElement("div");
-   notification.className = "notification-box";
-   notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
-   notification.innerHTML = `
-       <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
-       <div class="notification-content" style="color: white;">${pair.body}</div>
-       <button class="accept-btn">Accept</button>
-       <button class="dismiss-btn">Dismiss</button>
-   `;
-
-   notificationContainer.appendChild(notification);
-   notificationContainer.style.display = "block";
-
    //UPDATED: Get time when notification is displayed ->  Update notificationDisplayTime
    const comboIndex = notificationCombinations.findIndex(c => c.color.toLowerCase() === combo.color.toLowerCase() && c.category.toLowerCase() === combo.category.toLowerCase());
    if (comboIndex !== -1) {
@@ -167,6 +154,10 @@ function displayNotification(combo) {
     const notification = document.createElement("div");
     notification.className = "notification-box";
     notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+
+    notification.setAttribute("data-color", combo.color);
+    notification.setAttribute("data-category", combo.category);
+
     notification.innerHTML = `
         <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
         <div class="notification-content" style="color: white;">${pair.body}</div>
@@ -194,6 +185,10 @@ function displayNotification(combo) {
     const notification = document.createElement("div");
     notification.className = "notification-box";
     notification.style.backgroundColor = combo.color.toLowerCase(); // Set the background color
+    // set combo properties as data attributes
+    notification.setAttribute("data-color", combo.color);
+    notification.setAttribute("data-category", combo.category);
+
     notification.innerHTML = `
         <div class="notification-header" style="color: white; font-size: 20px; font-weight: bold;">${pair.header}</div>
         <div class="notification-content" style="color: white;">${pair.body}</div>
@@ -253,19 +248,23 @@ function calculateInteractionTime(combo) {
 
 
 //NOTIF BTNS
-$(document).on("click", ".accept-btn", function() {
+$(document).on("click", ".accept-btn", function(e) {
     clearTimeout(notificationTimeout);
     let target = e.target.parentElement;
     clickedNotification(target);
+
+    currentCombo = getCurrCombo(target);
     updateComboStatus(currentCombo, "accepted");
     calculateInteractionTime(currentCombo);
     console.log(`Combo accepted: ${JSON.stringify(currentCombo)}`);
 });
 
-$(document).on("click", ".dismiss-btn", function() {
+$(document).on("click", ".dismiss-btn", function(e) {
     clearTimeout(notificationTimeout);
     let target = e.target.parentElement;
     clickedNotification(target);
+
+    currentCombo = getCurrCombo(target);
     updateComboStatus(currentCombo, "dismissed");
     calculateInteractionTime(currentCombo);
     console.log(`Combo dismissed: ${JSON.stringify(currentCombo)}`);
