@@ -68,3 +68,12 @@ body {
    border: 1px solid #888;
    width: 80%;
 }
+
+/* HIDE ADMIN FEATURES */
+#adminButton,
+#notifButton,
+#scoreHolder,
+#adminContent,
+#footerInfo {
+    display: none;
+}
